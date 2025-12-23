@@ -55,8 +55,11 @@ VisualMem 不仅仅是一个录屏工具，它是你的**第二大脑**：
    - **第二阶段（精排）**：将候选帧交给 **Reranker** 模型进行深度排序，确保最相关的结果排在最前面。
 4. **VLM 总结**：最后将精选的关键帧喂给 **VLM 模型**，为你生成准确、带证据的自然语言回答。
 
-## � 演示视频
+## 📺 演示视频
 
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/6ecdb98d-ec7f-4eb5-9177-fb6d3e8976ac" width="800" controls></video>
+</p>
 
 ## �🚀 快速开始
 

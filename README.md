@@ -55,9 +55,13 @@ To achieve precise retrieval, we've built a sophisticated visual RAG pipeline:
    - **Stage 2 (Reranking)**: Candidate frames are passed to a **Reranker** model for deep sorting, ensuring the most relevant results come first.
 4. **VLM Summarization**: Finally, the selected keyframes are fed into a **VLM model** to generate accurate, evidence-based natural language answers.
 
-## � Demo Video
+## 📺 Demo Video
 
-## �🚀 Get Started
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/6ecdb98d-ec7f-4eb5-9177-fb6d3e8976ac" width="800" controls></video>
+</p>
+
+## 🚀 Get Started
 
 Ready to set up VisualMem? Follow our step-by-step guide:
 
