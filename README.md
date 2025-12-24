@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-   <h1 align="center">[ VisualMem ]</h1>
+   <h1 align="center">VisualMem</h1>
    <p align="center">Personal visual memory assistant powered by 24/7 desktop history</p>
    <p align="center">open source | 100% local capable | dev friendly | 24/7 screen recording & smart retrieval</p>
 </p>

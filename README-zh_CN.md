@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-   <h1 align="center">[ VisualMem ]</h1>
+   <h1 align="center">VisualMem</h1>
    <p align="center">由 24/7 桌面历史记录驱动的个人视觉记忆助手</p>
    <p align="center">开源 | 支持 100% 本地运行 | 开发者友好 | 24/7 屏幕记录与智能检索</p>
 </p>
