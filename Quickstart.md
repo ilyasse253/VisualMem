@@ -43,18 +43,45 @@ Copy the example environment file and edit it:
 ```bash
 cp env.example .env
 ```
-Edit the `.env` file to ensure the following keys are correctly configured:
-```ini
-# VLM API Configuration (for understanding screenshots)
-VLM_API_URI=http://localhost:8081/v1  # VLM service address (Avoid port 8080, used by backend)
-VLM_API_MODEL=Qwen3-VL-8B-Instruct  # Your VLM Model name
-VLM_API_KEY=your_api_key_if_needed # if deployed by your self, just None will work
+Edit the `.env` file to configure your storage and retrieval preferences. 
 
-# Storage Path (Optional, defaults to ./visualmem_storage, no need to change if your SSD has enough space)
-# STORAGE_BASE_PATH=./visualmem_storage
+**Rerank Configuration (Optional):**
+If you have enough VRAM (8GB+), you can enable a second-stage reranker for better accuracy:
+```ini
+# Enable a second-stage reranking using a multimodal model
+ENABLE_RERANK=true
+# Model used for reranking (e.g. a smaller VLM)
+RERANK_MODEL=Qwen/Qwen3-VL-2B-Instruct
 ```
 
-## 🚀 Step 2: Launch VisualMem
+## 🧠 Step 2: Start VLM Service
+
+VisualMem requires an OpenAI-compatible VLM service to understand screenshots. 
+
+### 1. Start your VLM Server
+You can use any server that supports the OpenAI API format.
+
+#### Option A: Local Deployment (Recommended)
+You can use [vLLM](https://github.com/vllm-project/vllm) to host a model locally:
+```bash
+# Example using Qwen3-VL
+vllm serve Qwen/Qwen3-VL-8B-Instruct --port 8081
+```
+
+#### Option B: Cloud API
+You can also use commercial APIs like OpenAI GPT-5 or Claude 3.5 Sonnet. 
+*Note: Using cloud APIs can be costly due to the high volume of screenshots.*
+
+### 2. Update `.env` with VLM Details
+Once your VLM service is running, update the following keys in your `.env` file:
+```ini
+# VLM API Configuration
+VLM_API_URI=http://localhost:8081  # VLM service address
+VLM_API_MODEL=Qwen/Qwen3-VL-8B-Instruct  # Your VLM Model name
+VLM_API_KEY=None # Set your API key if using cloud services
+```
+
+## 🚀 Step 3: Launch VisualMem
 
 The frontend handles screen capture and UI, while automatically managing the backend service for indexing and retrieval.
 

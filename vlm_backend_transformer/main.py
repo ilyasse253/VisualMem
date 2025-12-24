@@ -43,12 +43,12 @@ processor = None
 memory_evaluate = False  # 全局标志：是否启用内存评估
 
 def load_model():
-    """Load the Qwen2.5-VL model and processor"""
+    """Load the Qwen3-VL model and processor"""
     global model, processor
     try:
-        logger.info("Loading Qwen2.5-VL-3B-Instruct model...")
+        logger.info("Loading Qwen3-VL-8B-Instruct model...")
         model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-            "Qwen/Qwen2.5-VL-3B-Instruct",
+            "Qwen/Qwen3-VL-8B-Instruct",
             torch_dtype="auto",
             device_map="auto"
         )
@@ -56,8 +56,8 @@ def load_model():
         # You can set min_pixels and max_pixels according to your needs, such as a token range of 256-1280, to balance performance and cost.
         # min_pixels = 256*28*28
         # max_pixels = 1280*28*28
-        # processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
-        processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-3B-Instruct")
+        # processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-8B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
+        processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-8B-Instruct")
 
         # Move model to GPU if available
         if torch.cuda.is_available():

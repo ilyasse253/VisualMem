@@ -26,7 +26,7 @@ VisualMem 实现了一个成熟且完整的，基于视觉 RAG 的个人智能�
 4.  **Reranking (精排)**:
     - 如果启用了 Rerank 模块，使用交叉熵模型（Cross-Encoder）对候选帧进行二次打分，筛选出最相关的 Top-N 帧。
 5.  **VLM Summarization (VLM 总结)**:
-    - 将筛选出的关键帧及其时间戳提交给多模态大模型（如 Qwen2.5-VL 或 GPT-4o）。
+    - 将筛选出的关键帧及其时间戳提交给多模态大模型（如 Qwen3-VL 或 GPT-5）。
     - VLM 结合视觉信息和上下文，给出最终的自然语言回答。
 
 ---

@@ -83,7 +83,7 @@ VisualMem 不仅仅是一个录屏工具，它是你的**第二大脑**：
 
 - **前端**：Electron + React + TypeScript + Vite
 - **后端**：Python + FastAPI + SQLite + LanceDB
-- **AI 模型**：CLIP + Qwen2.5-VL / GPT-4o
+- **AI 模型**：CLIP + Qwen3-VL / GPT-5
 
 ---
 *VisualMem - 让你的视觉记忆永不褪色。*

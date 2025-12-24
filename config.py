@@ -134,7 +134,7 @@ class Config:
     VLM_API_KEY = os.environ.get("VLM_API_KEY", "")
     # API base address (only needs host:port, endpoint path will be automatically added based on VLM_BACKEND_TYPE)
     VLM_API_URI = os.environ.get("VLM_API_URI", "http://localhost:8081")
-    VLM_API_MODEL = os.environ.get("VLM_API_MODEL", "Qwen2.5-VL-3B-Instruct")
+    VLM_API_MODEL = os.environ.get("VLM_API_MODEL", "Qwen3-VL-8B-Instruct")
 
     # ============================================
     # Runtime Parameters
