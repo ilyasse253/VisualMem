@@ -7,3 +7,5 @@ logs/*.log
 *.lance
 *.log
 .env
+.DS_Store
+**/.DS_Store
