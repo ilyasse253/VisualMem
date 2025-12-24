@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { apiClient } from '../services/api'
-import { recordingService } from '../services/recording'
+import { recordingService, RecordingMode } from '../services/recording'
 
 export type ViewType = 'timeline' | 'realtime' | 'tags' | 'settings'
 
@@ -27,8 +27,10 @@ interface AppStoreContextType {
   
   // Recording state
   isRecording: boolean
+  recordingMode: RecordingMode
   startRecording: () => Promise<void>
   stopRecording: () => Promise<void>
+  setRecordingMode: (mode: RecordingMode) => void
   
   // Refresh timeline
   refreshTimeline: () => void
@@ -63,9 +65,16 @@ export const AppStoreProvider: React.FC<AppStoreProviderProps> = ({ children }) 
     latest_date: null
   })
   const [isRecording, setIsRecording] = useState(false)
+  const [recordingMode, setRecordingModeState] = useState<RecordingMode>(recordingService.getMode())
   const [timelineRefreshTrigger, setTimelineRefreshTrigger] = useState(0)
   const [currentView, setCurrentView] = useState<ViewType>('timeline')
   const [realtimeSearchResult, setRealtimeSearchResult] = useState<SearchResult | null>(null)
+
+  // 设置录制模式
+  const setRecordingMode = useCallback((mode: RecordingMode) => {
+    recordingService.setMode(mode)
+    setRecordingModeState(mode)
+  }, [])
 
   // 刷新日期范围
   const refreshDateRange = useCallback(async () => {
@@ -163,8 +172,10 @@ export const AppStoreProvider: React.FC<AppStoreProviderProps> = ({ children }) 
     dateRange,
     refreshDateRange,
     isRecording,
+    recordingMode,
     startRecording,
     stopRecording,
+    setRecordingMode,
     refreshTimeline,
     timelineRefreshTrigger,
     currentView,

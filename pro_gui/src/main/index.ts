@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, desktopCapturer, globalShortcut } from 'el
 import { spawn, ChildProcess } from 'child_process'
 import { join, dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { existsSync, mkdirSync, createWriteStream } from 'fs'
+import { existsSync, mkdirSync, createWriteStream, writeFileSync } from 'fs'
 import * as http from 'http'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))

@@ -19,7 +19,6 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
   const [query, setQuery] = useState('')
-  const [searchType, setSearchType] = useState<'image' | 'text'>('image')
   // 日期选择器已注释，保留状态以便后续使用
   // const [startDate, setStartDate] = useState('2025-10-27')
   // const [endDate, setEndDate] = useState('2025-12-18')
@@ -27,7 +26,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
   const searchRequestRef = useRef<AbortController | null>(null)
   
   // 使用全局状态
-  const { isRecording, startRecording, stopRecording, currentView, setRealtimeSearchResult } = useAppStore()
+  const { 
+    isRecording, 
+    startRecording, 
+    stopRecording, 
+    recordingMode,
+    setRecordingMode,
+    currentView, 
+    setRealtimeSearchResult 
+  } = useAppStore()
 
   const handleSearch = async () => {
     if (!query.trim()) return
@@ -65,7 +72,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
           query: query.trim(),
           start_time: startTime,
           end_time: endTime,
-          search_type: searchType
+          search_type: 'image' // 默认使用图片搜索
         },
         abortController.signal // 传递 AbortSignal
       )
@@ -154,21 +161,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearchResult }) => {
         
         <div className="toggle-group">
           <button
-            className={`toggle-btn ${searchType === 'image' ? 'active' : ''}`}
-            onClick={() => setSearchType('image')}
-            title="基于图片视觉特征搜索"
+            className={`toggle-btn ${recordingMode === 'primary' ? 'active' : ''}`}
+            onClick={() => setRecordingMode('primary')}
+            title="仅录制主屏幕"
           >
-            Image
+            主屏幕
           </button>
-          {/* 
           <button
-            className={`toggle-btn ${searchType === 'text' ? 'active' : ''}`}
-            onClick={() => setSearchType('text')}
-            title="基于 OCR 文本语义搜索"
+            className={`toggle-btn ${recordingMode === 'all' ? 'active' : ''}`}
+            onClick={() => setRecordingMode('all')}
+            title="录制所有扩展屏幕"
           >
-            Text
+            所有屏幕
           </button>
-          */}
         </div>
 
         {/* 日期选择器已注释，保留以便后续使用 */}

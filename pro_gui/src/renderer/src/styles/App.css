@@ -15,6 +15,7 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--border-dim);
+  -webkit-app-region: drag;
 }
 
 .sidebar-title {
@@ -24,11 +25,13 @@
   margin-bottom: var(--spacing-lg);
   padding-bottom: var(--spacing-md);
   border-bottom: 1px solid var(--border-dim);
+  user-select: none;
 }
 
 .nav-list {
   flex: 1;
   list-style: none;
+  -webkit-app-region: no-drag;
 }
 
 /* 系统状态面板 */
@@ -36,6 +39,7 @@
   margin-top: auto;
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--border-dim);
+  -webkit-app-region: no-drag;
 }
 
 .status-item {
@@ -69,6 +73,11 @@
   padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--border-dim);
   z-index: 100;
+  -webkit-app-region: drag;
+}
+
+.top-bar > * {
+  -webkit-app-region: no-drag;
 }
 
 .content-area {
@@ -598,26 +607,29 @@
 
 .image-preview-close {
   position: absolute;
-  top: -40px;
-  right: 0;
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 48px;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 24px;
   line-height: 1;
   cursor: pointer;
   padding: 0;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
   z-index: 10001;
+  border-radius: 4px;
 }
 
 .image-preview-close:hover {
-  color: var(--accent-primary);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-color: white;
 }
 
 .image-preview-img {

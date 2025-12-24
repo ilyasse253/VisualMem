@@ -5,16 +5,21 @@ import { apiClient } from './api'
  * 在 Electron 中完成截屏和帧差过滤，然后发送到后端进行 embedding 和 OCR
  */
 
+export type RecordingMode = 'primary' | 'all'
+
 interface RecordingOptions {
   interval?: number // 截屏间隔（毫秒），默认 3000ms
   diffThreshold?: number // 帧差阈值，默认 0.006
+  mode?: RecordingMode // 录制模式，默认 'primary'
 }
 
 class RecordingService {
   private intervalId: number | null = null
-  private lastImageData: ImageData | null = null
+  private lastImageDataArray: (ImageData | null)[] = [] // 存储用于对比的低分辨率图像数据
   private canvas: HTMLCanvasElement | null = null
   private ctx: CanvasRenderingContext2D | null = null
+  private diffCanvas: HTMLCanvasElement | null = null
+  private diffCtx: CanvasRenderingContext2D | null = null
   private options: Required<RecordingOptions>
   private isRecording: boolean = false
   private frameCounter: number = 0 // 计数器：0-10，每成功发送 10 帧后刷新数据
@@ -28,7 +33,8 @@ class RecordingService {
     // 但这里先设为 3000ms（3秒），等从后端加载后再更新
     this.options = {
       interval: options.interval || 3000,  // 默认 3 秒（与 CAPTURE_INTERVAL_SECONDS 默认值一致）
-      diffThreshold: options.diffThreshold || 0.006
+      diffThreshold: options.diffThreshold || 0.006,
+      mode: options.mode || 'primary'
     }
     
     // 恢复状态：检查 sessionStorage (仅在页面刷新时保留，应用关闭后自动清除)
@@ -126,100 +132,161 @@ class RecordingService {
   }
 
   /**
-   * 压缩图片到指定最大宽度
+   * 使用 Electron desktopCapturer API 和 WebRTC 截屏
    */
-  private compressImage(canvas: HTMLCanvasElement): string {
-    const maxWidth = this.maxImageWidth
-    const quality = this.imageQuality
-    
-    if (canvas.width <= maxWidth) {
-      return canvas.toDataURL('image/jpeg', quality)
-    }
-
-    const ratio = maxWidth / canvas.width
-    const newHeight = canvas.height * ratio
-
-    const tempCanvas = document.createElement('canvas')
-    tempCanvas.width = maxWidth
-    tempCanvas.height = newHeight
-    const tempCtx = tempCanvas.getContext('2d')
-    if (!tempCtx) {
-      return canvas.toDataURL('image/jpeg', quality)
-    }
-
-    tempCtx.drawImage(canvas, 0, 0, maxWidth, newHeight)
-    return tempCanvas.toDataURL('image/jpeg', quality)
-  }
-
-  /**
-   * 使用 Electron desktopCapturer API 截屏
-   */
-  private async captureScreen(): Promise<ImageData | null> {
+  private async captureScreen(): Promise<{ base64Data: string; diffData: ImageData; index: number; width: number; height: number }[]> {
     try {
       // 检查 electronAPI 是否可用
       const electronAPI = (window as any).electronAPI
       if (!electronAPI || !electronAPI.desktopCapturer) {
         console.error('desktopCapturer API not available', { electronAPI })
-        return null
+        return []
       }
 
-      // 使用 Electron 的 API 截屏
-      // 使用配置的最大图片宽度（如果还没加载，使用默认值 1920）
-      const thumbnailWidth = this.maxImageWidth || 1920
-      const thumbnailHeight = Math.round(thumbnailWidth * 9 / 16)  // 16:9 比例
-      
+      // 获取所有屏幕源
       const sources = await electronAPI.desktopCapturer.getSources({
         types: ['screen'],
-        thumbnailSize: { width: thumbnailWidth, height: thumbnailHeight }
+        thumbnailSize: { width: 1, height: 1 } // 我们不再需要缩略图，设为最小以节省开销
       })
 
       if (!sources || sources.length === 0) {
         console.error('No screen source found')
-        return null
+        return []
       }
 
-      // 使用主屏幕
-      const primarySource = sources[0]
-      // console.log('Captured screen source:', primarySource.name, 'thumbnail size:', primarySource.thumbnail.getSize())
+      // 根据模式选择源
+      const sourcesToCapture = this.options.mode === 'primary' ? [sources[0]] : sources
       
-      // 创建一个 image 元素来加载缩略图
-      const img = new Image()
-      img.src = primarySource.thumbnail.toDataURL()
+      const results: { base64Data: string; diffData: ImageData; index: number; width: number; height: number }[] = []
 
-      return new Promise((resolve) => {
-        img.onload = () => {
-          if (!this.canvas) {
-            this.canvas = document.createElement('canvas')
-            this.ctx = this.canvas.getContext('2d', { willReadFrequently: true })
-          }
+      for (let i = 0; i < sourcesToCapture.length; i++) {
+        const source = sourcesToCapture[i]
+        try {
+          // 使用 WebRTC 获取真实的屏幕流
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              mandatory: {
+                chromeMediaSource: 'desktop',
+                chromeMediaSourceId: source.id,
+                minWidth: 1280,
+                maxWidth: 4096,
+                minHeight: 720,
+                maxHeight: 2304
+              }
+            } as any
+          })
 
-          if (!this.canvas || !this.ctx) {
-            console.error('Failed to create canvas or context')
-            resolve(null)
-            return
-          }
+          // 将流转换为图片数据
+          const captureResult = await new Promise<{ base64Data: string; diffData: ImageData; width: number; height: number } | null>((resolve) => {
+            const video = document.createElement('video')
+            video.style.display = 'none'
+            document.body.appendChild(video)
+            video.srcObject = stream
+            
+            video.onloadedmetadata = async () => {
+              try {
+                await video.play()
+                
+                // 1. 首先绘制到小画布用于帧差检测 (160x120)
+                if (!this.diffCanvas) {
+                  this.diffCanvas = document.createElement('canvas')
+                  this.diffCanvas.width = 160
+                  this.diffCanvas.height = 120
+                  this.diffCtx = this.diffCanvas.getContext('2d', { willReadFrequently: true })
+                }
 
-          this.canvas.width = img.width
-          this.canvas.height = img.height
-          this.ctx.drawImage(img, 0, 0)
-          
-          try {
-            const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height)
-            // console.log('Captured image data:', imageData.width, 'x', imageData.height)
-            resolve(imageData)
-          } catch (e) {
-            console.error('Failed to get image data:', e)
-            resolve(null)
+                if (!this.diffCtx) {
+                  resolve(null)
+                  return
+                }
+
+                this.diffCtx.drawImage(video, 0, 0, 160, 120)
+                const diffData = this.diffCtx.getImageData(0, 0, 160, 120)
+
+                // 2. 检查是否需要捕获全图
+                let shouldCaptureFull = true
+                if (this.lastImageDataArray[i]) {
+                  const diff = this.calculateNormalizedRMSDiff(this.lastImageDataArray[i]!, diffData)
+                  if (diff < this.options.diffThreshold) {
+                    shouldCaptureFull = false
+                  }
+                }
+
+                if (!shouldCaptureFull) {
+                  resolve({ base64Data: '', diffData, width: video.videoWidth, height: video.videoHeight })
+                  return
+                }
+
+                // 3. 需要捕获全图
+                if (!this.canvas) {
+                  this.canvas = document.createElement('canvas')
+                  this.ctx = this.canvas.getContext('2d', { willReadFrequently: true })
+                }
+
+                if (!this.canvas || !this.ctx) {
+                  resolve(null)
+                  return
+                }
+
+                // 根据配置限制最大宽度
+                const maxWidth = this.maxImageWidth || 1920
+                let targetWidth = video.videoWidth
+                let targetHeight = video.videoHeight
+                
+                if (targetWidth > maxWidth) {
+                  const ratio = maxWidth / targetWidth
+                  targetWidth = maxWidth
+                  targetHeight = Math.round(video.videoHeight * ratio)
+                }
+
+                this.canvas.width = targetWidth
+                this.canvas.height = targetHeight
+                this.ctx.drawImage(video, 0, 0, targetWidth, targetHeight)
+                
+                const base64 = this.canvas.toDataURL('image/jpeg', this.imageQuality || 0.85)
+                resolve({ 
+                  base64Data: base64.split(',')[1], 
+                  diffData, 
+                  width: video.videoWidth, 
+                  height: video.videoHeight 
+                })
+              } catch (e) {
+                console.error('Failed to capture frame from video:', e)
+                resolve(null)
+              } finally {
+                // 停止流并清理元素
+                stream.getTracks().forEach(track => track.stop())
+                video.remove()
+              }
+            }
+            
+            video.onerror = (err) => {
+              console.error('Video error:', err)
+              stream.getTracks().forEach(track => track.stop())
+              video.remove()
+              resolve(null)
+            }
+          })
+
+          if (captureResult) {
+            results.push({ 
+              base64Data: captureResult.base64Data, 
+              diffData: captureResult.diffData, 
+              index: i,
+              width: captureResult.width,
+              height: captureResult.height
+            })
           }
+        } catch (err) {
+          console.error(`Failed to capture screen ${source.name} via WebRTC:`, err)
         }
-        img.onerror = (err) => {
-          console.error('Image load error:', err)
-          resolve(null)
-        }
-      })
+      }
+
+      return results
     } catch (error) {
       console.error('Capture screen error:', error)
-      return null
+      return []
     }
   }
 
@@ -272,63 +339,6 @@ class RecordingService {
   }
 
   /**
-   * 发送帧到后端
-   */
-  private async sendFrameToBackend(imageData: ImageData, frameId: string, timestamp: string): Promise<void> {
-    if (!this.canvas) {
-      return
-    }
-
-    // 将 ImageData 绘制到 canvas
-    if (!this.ctx) {
-      return
-    }
-
-    this.canvas.width = imageData.width
-    this.canvas.height = imageData.height
-    this.ctx.putImageData(imageData, 0, 0)
-
-    // 压缩图片（使用从后端获取的配置）
-    const compressedDataUrl = this.compressImage(this.canvas)
-    const base64Data = compressedDataUrl.split(',')[1]
-
-    // 发送到后端
-    try {
-      // 再次检查录制状态
-      if (!this.isRecording) {
-        return
-      }
-      
-      // console.log('Sending frame to backend:', frameId, 'size:', base64Data.length)
-      const result = await apiClient.storeFrame({
-        frame_id: frameId,
-        timestamp: timestamp,
-        image_base64: base64Data,
-        metadata: {
-          width: imageData.width,
-          height: imageData.height
-        }
-      })
-      // console.log('Frame stored successfully:', result)
-      
-      // 递增计数器（0-10）
-      this.frameCounter = (this.frameCounter + 1) % 10
-      
-      // 每 10 次成功发送后刷新数据
-      if (this.frameCounter === 0) {
-        console.log('Reached 10 frames, refreshing data...')
-        // 异步刷新数据，不阻塞后续的帧发送
-        this.refreshData().catch(err => {
-          console.error('Error in refreshData:', err)
-        })
-      }
-    } catch (error) {
-      console.error('Failed to send frame to backend:', error)
-      // 发送失败不计入计数器
-    }
-  }
-
-  /**
    * 开始录制
    */
   async start(): Promise<void> {
@@ -339,10 +349,10 @@ class RecordingService {
 
     this.isRecording = true
     sessionStorage.setItem('vlm_is_recording', 'true')
-    this.lastImageData = null
+    this.lastImageDataArray = []
     this.frameCounter = 0 // 重置计数器
 
-    console.log(`[RecordingService] Starting capture loop with interval: ${this.options.interval}ms`)
+    console.log(`[RecordingService] Starting capture loop with interval: ${this.options.interval}ms, mode: ${this.options.mode}`)
 
     // 立即执行一次
     this.captureAndProcessLoop()
@@ -363,65 +373,92 @@ class RecordingService {
       return
     }
 
-    const startTime = Date.now()
-    // console.log(`[RecordingService] Loop started at ${new Date(startTime).toLocaleTimeString()}, interval: ${this.options.interval}ms`)
-
     try {
-      // 截屏
-      const imageData = await this.captureScreen()
+      // 截屏（可能包含多个屏幕）
+      const captureResults = await this.captureScreen()
       
       // 再次检查录制状态（可能在截屏过程中停止了）
-      if (!this.isRecording || !imageData) {
+      if (!this.isRecording || captureResults.length === 0) {
         return
       }
 
-      // 帧差过滤
-      if (this.lastImageData) {
-        const diff = this.calculateNormalizedRMSDiff(this.lastImageData, imageData)
-        if (diff < this.options.diffThreshold) {
-          // 差异太小，跳过这一帧
-          return
-        }
-      }
-
-      // 再次检查录制状态
-      if (!this.isRecording) {
-        return
-      }
-
-      // 更新上一帧
-      this.lastImageData = imageData
-
-      // 生成 frame_id 和 timestamp（使用时间戳格式：YYYYMMDD_HHMMSS_ffffff）
       const now = new Date()
       const timestamp = now.toISOString()
       
-      // 生成时间戳格式的 frame_id：YYYYMMDD_HHMMSS_000000
-      // 微秒部分设为 000000，因为每秒只截屏一次
+      // 生成时间戳格式的 frame_id 前缀：YYYYMMDD_HHMMSS_
       const year = now.getFullYear()
       const month = String(now.getMonth() + 1).padStart(2, '0')
       const day = String(now.getDate()).padStart(2, '0')
       const hours = String(now.getHours()).padStart(2, '0')
       const minutes = String(now.getMinutes()).padStart(2, '0')
       const seconds = String(now.getSeconds()).padStart(2, '0')
-      
-      const frameId = `${year}${month}${day}_${hours}${minutes}${seconds}_000000`
+      const frameIdPrefix = `${year}${month}${day}_${hours}${minutes}${seconds}_`
 
-      // 最后检查一次录制状态
-      if (!this.isRecording) {
-        return
+      for (const { base64Data, diffData, index, width, height } of captureResults) {
+        // 再次检查录制状态
+        if (!this.isRecording) {
+          break
+        }
+
+        // 更新上一帧（用于下一次对比）
+        this.lastImageDataArray[index] = diffData
+
+        // 如果 base64Data 为空，说明帧差过滤未通过，跳过发送
+        if (!base64Data) {
+          continue
+        }
+
+        // 生成 frame_id：YYYYMMDD_HHMMSS_00000X
+        // 微秒部分使用 index 区分不同屏幕
+        const microSeconds = String(index).padStart(6, '0')
+        const frameId = `${frameIdPrefix}${microSeconds}`
+
+        // 发送到后端（异步，不阻塞）
+        this.sendFrameToBackendDirectly(base64Data, frameId, timestamp, width, height).catch(err => {
+          console.error(`Error sending frame for screen ${index}:`, err)
+        })
       }
-
-      // 发送到后端（异步，不阻塞）
-      this.sendFrameToBackend(imageData, frameId, timestamp).catch(err => {
-        console.error('Error sending frame:', err)
-      })
     } catch (error) {
       // 如果已经停止录制，忽略错误
       if (!this.isRecording) {
         return
       }
       console.error('Error in capture loop:', error)
+    }
+  }
+
+  /**
+   * 直接发送 Base64 帧到后端
+   */
+  private async sendFrameToBackendDirectly(base64Data: string, frameId: string, timestamp: string, width: number, height: number): Promise<void> {
+    // 发送到后端
+    try {
+      // 再次检查录制状态
+      if (!this.isRecording) {
+        return
+      }
+      
+      await apiClient.storeFrame({
+        frame_id: frameId,
+        timestamp: timestamp,
+        image_base64: base64Data,
+        metadata: {
+          width: width,
+          height: height
+        }
+      })
+      
+      // 递增计数器（0-10）
+      this.frameCounter = (this.frameCounter + 1) % 10
+      
+      // 每 10 次成功发送后刷新数据
+      if (this.frameCounter === 0) {
+        this.refreshData().catch(err => {
+          console.error('Error in refreshData:', err)
+        })
+      }
+    } catch (error) {
+      console.error('Failed to send frame to backend:', error)
     }
   }
 
@@ -440,7 +477,7 @@ class RecordingService {
     }
 
     // 重置状态
-    this.lastImageData = null
+    this.lastImageDataArray = []
     console.log('Recording stopped')
 
     // 通知后端刷新缓冲区
@@ -457,6 +494,25 @@ class RecordingService {
    */
   getStatus(): boolean {
     return this.isRecording
+  }
+
+  /**
+   * 设置录制模式
+   */
+  setMode(mode: RecordingMode): void {
+    if (this.options.mode !== mode) {
+      console.log(`[RecordingService] Switching mode from ${this.options.mode} to ${mode}`)
+      this.options.mode = mode
+      // 切换模式时清空上一帧缓存，确保新模式下的第一帧能被捕获
+      this.lastImageDataArray = []
+    }
+  }
+
+  /**
+   * 获取当前录制模式
+   */
+  getMode(): RecordingMode {
+    return this.options.mode
   }
 }
 
