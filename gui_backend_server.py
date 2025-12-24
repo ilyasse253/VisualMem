@@ -401,6 +401,20 @@ async def startup_event():
     _init_all_components()
 
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    """
+    服务器关闭时清理资源，确保缓冲区数据写入磁盘。
+    """
+    logger.info("=" * 60)
+    logger.info("Shutting down backend server...")
+    if batch_write_buffer is not None:
+        logger.info("Flushing batch write buffer...")
+        batch_write_buffer.stop()
+    logger.info("Backend server shutdown complete.")
+    logger.info("=" * 60)
+
+
 # ============ Endpoints ============
 
 
@@ -882,7 +896,7 @@ def get_recent_frames(minutes: int = 5):
                 "image_path": f["image_path"],
                 "ocr_text": f["ocr_text"]
             })
-        print(f"Found {len(recent_frames)} frames in the last {minutes} minutes.")
+        # print(f"Found {len(recent_frames)} frames in the last {minutes} minutes.")
         
         return {"frames": recent_frames}
     except Exception as e:

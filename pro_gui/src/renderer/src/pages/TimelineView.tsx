@@ -226,6 +226,14 @@ const TimelineView: React.FC = () => {
     
     try {
       // 1. 确定搜索起始点
+      if (!dateRange.latest_date) {
+        // 如果后端没有数据，则直接结束
+        // 注意：不要在这里设置 hasMore 为 false，因为可能只是还没加载出来
+        setLoading(false)
+        loadingRef.current = false
+        return
+      }
+
       let currentDate: Date
       if (cursorDateRef.current) {
         // 从指针的下一天（前一天）开始
@@ -234,13 +242,9 @@ const TimelineView: React.FC = () => {
       } else {
         // 第一次加载：取 (今天) 和 (后端最新日期) 的较大值，确保不漏掉今天
         const today = new Date()
-        if (dateRange.latest_date) {
-          const latest = new Date(dateRange.latest_date)
-          // 比较日期部分，确保 currentDate 是两者中较晚的一个
-          currentDate = latest > today ? latest : today
-        } else {
-          currentDate = today
-        }
+        const latest = new Date(dateRange.latest_date)
+        // 比较日期部分，确保 currentDate 是两者中较晚的一个
+        currentDate = latest > today ? latest : today
         // console.log(`[TimelineView] Initial load starting from: ${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')} (latest_date: ${dateRange.latest_date})`)
       }
 
@@ -315,7 +319,16 @@ const TimelineView: React.FC = () => {
       // 如果循环结束了（查了 MAX_EMPTY_CHECKS 天），但还没找到足够的组，且没到底部
       // 我们需要再次自动触发 loadMoreDates，否则用户看到的就是一片空白，必须手动滚动才能触发
       if (newGroups.length === 0 && hasMoreRef.current && checksCount >= MAX_EMPTY_CHECKS) {
-        //  console.log('Checked batch was empty, auto-retrying next batch...')
+         // 如果连最早日期都没有，说明数据库完全是空的，不应该继续递归
+         if (!earliestDate) {
+           setHasMore(false)
+           hasMoreRef.current = false
+           setLoading(false)
+           loadingRef.current = false
+           return
+         }
+
+         //  console.log('Checked batch was empty, auto-retrying next batch...')
          // 使用 setTimeout 让出主线程，避免 UI 卡死，然后继续递归查找
          setTimeout(() => {
              setLoading(false) // 先释放锁
@@ -612,8 +625,11 @@ const TimelineView: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    // 1. 如果还没有数据，触发初始加载
-    if (dateGroups.length === 0 && !loadingRef.current) {
+    // 1. 如果还没有数据，且后端已经有了日期范围，触发初始加载
+    if (dateGroups.length === 0 && !loadingRef.current && dateRange.latest_date) {
+      // 确保 hasMore 为 true，允许加载
+      setHasMore(true)
+      hasMoreRef.current = true
       loadMoreDates()
     } 
     // 2. 如果有了更晚的日期（比如后端刚更新），触发增量刷新

@@ -31,10 +31,10 @@ class RecordingService {
       diffThreshold: options.diffThreshold || 0.006
     }
     
-    // 恢复状态：检查 localStorage
-    const savedState = localStorage.getItem('vlm_is_recording')
+    // 恢复状态：检查 sessionStorage (仅在页面刷新时保留，应用关闭后自动清除)
+    const savedState = sessionStorage.getItem('vlm_is_recording')
     if (savedState === 'true') {
-      console.log('[RecordingService] Restoring recording state from localStorage')
+      console.log('[RecordingService] Restoring recording state from sessionStorage after refresh')
       // 延迟启动，确保环境已就绪
       setTimeout(() => {
         this.start().catch(err => console.error('Failed to auto-resume recording:', err))
@@ -294,6 +294,11 @@ class RecordingService {
 
     // 发送到后端
     try {
+      // 再次检查录制状态
+      if (!this.isRecording) {
+        return
+      }
+      
       // console.log('Sending frame to backend:', frameId, 'size:', base64Data.length)
       const result = await apiClient.storeFrame({
         frame_id: frameId,
@@ -333,7 +338,7 @@ class RecordingService {
     }
 
     this.isRecording = true
-    localStorage.setItem('vlm_is_recording', 'true')
+    sessionStorage.setItem('vlm_is_recording', 'true')
     this.lastImageData = null
     this.frameCounter = 0 // 重置计数器
 
@@ -426,7 +431,7 @@ class RecordingService {
   async stop(): Promise<void> {
     // 立即设置停止标志
     this.isRecording = false
-    localStorage.removeItem('vlm_is_recording')
+    sessionStorage.removeItem('vlm_is_recording')
     
     // 清除定时器
     if (this.intervalId !== null) {

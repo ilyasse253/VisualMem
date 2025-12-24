@@ -35,7 +35,7 @@
 ## ✨ 强大功能与智能工作流
 
 <p align="center">
-  <img src="./demo.png" alt="VisualMem GUI 运行截图" width="800">
+  <img src="./docs/demo.png" alt="VisualMem GUI 运行截图" width="800">
 </p>
 
 VisualMem 不仅仅是一个录屏工具，它是你的**第二大脑**：
@@ -45,7 +45,7 @@ VisualMem 不仅仅是一个录屏工具，它是你的**第二大脑**：
 ### 🧠 智能 RAG 工作流
 为了实现精准检索，我们构建了一套成熟的视觉 RAG 流程：
 <p align="center">
-  <img src="./visualmem_workflow.png" alt="VisualMem Workflow" width="800">
+  <img src="./docs/visualmem_workflow.png" alt="VisualMem Workflow" width="800">
 </p>
 
 1. **多维索引**：系统实时使用 **CLIP** 对图像进行向量编码，并同步通过 **OCR** 提取文字内容。

@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, desktopCapturer, globalShortcut } from 'el
 import { spawn, ChildProcess } from 'child_process'
 import { join, dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { existsSync } from 'fs'
+import { existsSync, mkdirSync, createWriteStream } from 'fs'
 import * as http from 'http'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -206,11 +206,31 @@ function startPythonBackend(): Promise<void> {
   // 生产模式下，假设后端已经通过其他方式启动
   if (isDev) {
     return new Promise((resolve, reject) => {
+      // 确保 logs 目录存在
+      const logDir = join(rootDir, 'logs')
+      if (!existsSync(logDir)) {
+        mkdirSync(logDir, { recursive: true })
+      }
+      
+      const logFile = join(logDir, 'backend_server.log')
+      const logStream = createWriteStream(logFile, { flags: 'a' })
+      
+      console.log('Starting Python backend...')
+      console.log(`Backend logs are being redirected to: ${logFile}`)
+
       pythonProcess = spawn('python', [pythonScript], {
         cwd: rootDir,
-        stdio: 'inherit',
+        stdio: ['ignore', 'pipe', 'pipe'],
         shell: process.platform === 'win32'
       })
+
+      // 将 stdout 和 stderr 重定向到日志文件
+      if (pythonProcess.stdout) {
+        pythonProcess.stdout.pipe(logStream)
+      }
+      if (pythonProcess.stderr) {
+        pythonProcess.stderr.pipe(logStream)
+      }
 
       pythonProcess.on('error', (error) => {
         console.error('Failed to start Python backend:', error)
@@ -238,7 +258,24 @@ function startPythonBackend(): Promise<void> {
 
 function stopPythonBackend(): void {
   if (pythonProcess) {
-    pythonProcess.kill()
+    console.log('Stopping Python backend...')
+    // 发送 SIGTERM 信号，允许后端优雅退出（触发 shutdown 事件刷新缓冲区）
+    pythonProcess.kill('SIGTERM')
+    
+    // 3秒后如果进程还没退出，则强制杀死
+    const processToKill = pythonProcess
+    setTimeout(() => {
+      try {
+        // 检查进程是否还在运行
+        if (processToKill && processToKill.exitCode === null) {
+          console.log('Python backend did not exit in time, force killing...')
+          processToKill.kill('SIGKILL')
+        }
+      } catch (e) {
+        // 进程可能已经退出
+      }
+    }, 3000)
+    
     pythonProcess = null
   }
 }

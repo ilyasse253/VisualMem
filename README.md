@@ -35,7 +35,7 @@
 ## ✨ Powerful Features & Intelligent Workflow
 
 <p align="center">
-  <img src="./demo.png" alt="VisualMem GUI Screenshot" width="800">
+  <img src="./docs/demo.png" alt="VisualMem GUI Screenshot" width="800">
 </p>
 
 VisualMem is more than just a screen recorder; it's your **second brain**:
@@ -45,7 +45,7 @@ VisualMem is more than just a screen recorder; it's your **second brain**:
 ### 🧠 Intelligent RAG Workflow
 To achieve precise retrieval, we've built a sophisticated visual RAG pipeline:
 <p align="center">
-  <img src="./visualmem_workflow.png" alt="VisualMem Workflow" width="800">
+  <img src="./docs/visualmem_workflow.png" alt="VisualMem Workflow" width="800">
 </p>
 
 1. **Multidimensional Indexing**: The system uses **CLIP** for real-time image vector encoding and **OCR** for text extraction.

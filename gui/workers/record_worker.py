@@ -311,11 +311,14 @@ class RecordWorker(QObject):
                             },
                         }
                         url = config.GUI_REMOTE_BACKEND_URL.rstrip("/") + "/api/store_frame"
-                        resp = requests.post(url, json=payload, timeout=30)
+                        resp = requests.post(url, json=payload, timeout=10)
                         resp.raise_for_status()
                         logger.info(f"远程上传帧成功: {frame_id}")
                     except Exception as e:
-                        logger.error(f"远程上传帧失败: {e}", exc_info=True)
+                        if not self.running:
+                            # 如果已经停止录制，忽略错误
+                            break
+                        logger.error(f"远程上传帧失败: {e}")
                         self.error_signal.emit(f"远程上传帧失败: {e}")
                         time.sleep(config.CAPTURE_INTERVAL_SECONDS)
                         continue

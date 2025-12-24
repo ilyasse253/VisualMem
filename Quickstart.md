@@ -76,7 +76,7 @@ You can also use commercial APIs like OpenAI GPT-5 or Claude 3.5 Sonnet.
 Once your VLM service is running, update the following keys in your `.env` file:
 ```ini
 # VLM API Configuration
-VLM_API_URI=http://localhost:8081  # VLM service address
+VLM_API_URI=http://<server-ip-address>:8081  # VLM service address
 VLM_API_MODEL=Qwen/Qwen3-VL-8B-Instruct  # Your VLM Model name
 VLM_API_KEY=None # Set your API key if using cloud services
 ```

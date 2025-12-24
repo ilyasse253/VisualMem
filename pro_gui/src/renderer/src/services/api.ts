@@ -45,20 +45,29 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`
-    const response = await fetch(url, {
-      ...options,
-      signal: options.signal, // 支持 AbortSignal
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    })
+    
+    // 为所有请求设置默认超时（例如 30 秒），防止请求无限挂起
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
 
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.statusText}`)
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: options.signal || controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.statusText}`)
+      }
+
+      return response.json()
+    } finally {
+      clearTimeout(timeoutId)
     }
-
-    return response.json()
   }
 
   async getStats(): Promise<StatsResponse> {
